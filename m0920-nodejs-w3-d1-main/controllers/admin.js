@@ -2,6 +2,14 @@ const Product = require('../models/Products')
 const { validationResult } = require('express-validator')
 
 exports.getAddProduct = (req, res, next) => {
+  let errMsg = req.flash("error");
+  console.log("from flash ", errMsg);
+  if (errMsg.length > 0) {
+    errMsg = errMsg[0];
+  } else {
+    errMsg = null;
+  }
+exports.getAddProduct = (req, res, next) => {
   res.render('admin/edit-product', {
     pageTitle: 'Add a product',
     path: '/admin/add-product',
@@ -10,6 +18,16 @@ exports.getAddProduct = (req, res, next) => {
 }
 
 exports.postAddProduct = (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(402).render("admin/add-product", {
+      pageTitle: "Add a product",
+      path: "/admin/add-product",
+      editing: false,
+      errorMessage: errors.array(),
+    });
+  }
+
   const product = new Product({
     title: req.body.title,
     price: req.body.price,
